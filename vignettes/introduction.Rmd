@@ -1,0 +1,147 @@
+---
+title: "Heuristic Algorithms for VRP"
+author: "Naveen Kaveti"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+We all know about the complexity of VRP algorithms. Getting global optimal routes for a VRP problem is almost impossible even for a smaller number of customer nodes. Even if it is possible we may need to wait for hours to get a global optimal solutions and this may not be possible for most of the business problems. Some time business may require real-time better routes (may not be optimal) to service their customers as early as possible. Objective of this package is to implement heuristic algorithms to find greedy routes in almost real-time. Currently implemented Clarke-Wright Savings algorithm, both parallel and sequential methods for CVRP (Capacitated Vehicle Routing Problem). I am planning to implement more features into the problem (like, time-window, backhauls and etc) and more greedy approaches, if possible.
+
+## Clarke-Wright Savings Algorithm
+
+Clarke-Wright Savings is one of the most famous algorithm for VRP problems. The key feature of this algorithm is very less computational time and very easy to understand.
+
+Savings Approach: Let A be your depot location and B, C are customer node locations. Now there are two possible ways to service customers from A.
+
+1. Sending two different vehicle to each customer seperately.
+2. Sending one vehicle to service both of them and retunr back to depot.
+
+Cost for approach 1 is: `C1 := Dist[A, B] + Dist[B, A] + Dist[A, C] + Dist[C, A]`
+
+Cost for approach 2 is: `C2 := Dist[A, B] + Dist[B, C] + Dist[C, A]`
+
+Savings of approach 2 over approach 1 can be computed as follows:
+
+`Saving(B, C) := C2 - C1 := Dist[B, A] + Dist[A, C] - Dist[B, C]`
+
+#### Parallel Method: 
+
+Start from the top of the savings (maximum saving) list and execute the following.
+
+If next edge has a common node with the existing route and the common node is not an interior of the route then connet that edge to the existing route, otherwise start a new route with next edge.
+
+Repeat the above step until all nodes serviced or no edges left in sorted edges
+
+#### Sequential Method: 
+
+This is same as parallel method except for one change. In sequential method routes built sequentially. That is, we can not start new routes unitl existing routes are filled.
+
+
+## Parallel Savings Method
+
+We are going to use online available test cases for explanation. You can download more test cases from [here](http://neo.lcc.uma.es/vrp/vrp-instances/capacitated-vrp-instances/)
+
+```{r echo = FALSE, include = FALSE}
+library(HeuristicsVRP)
+options(expressions = 10000)
+```
+
+#### Data description:
+
+An32k5demand -- Demand at each customer node (Let, demand at depot is 0)
+
+An32k5locations -- X, Y co-ordinates of 32 nodes
+
+Where, An32k5 stands for 32 nodes (1 depot and 31 customer nodes) and 5 vehicles
+
+
+```{r}
+knitr::kable(head(An32k5demand))
+knitr::kable(head(An32k5locations))
+```
+
+#### Plot of X-Y coordinates of locations
+
+```{r fig.align = 'center', fig.width = 6, fig.height = 5, fig.cap = " X-Y coordinates of locations"}
+g <- ggplot(An32k5locations, aes(x = X, y = Y))
+
+g + annotate("text", x = An32k5locations[, 2], y = An32k5locations[, 3], label = An32k5locations[, 1])
+```
+
+#### Distance Matrix
+
+```{r}
+DMat <- DistMat(An32k5locations)
+row.names(DMat) <- NULL
+knitr::kable(DMat[1:5, 1:5])
+```
+
+#### Savings Matrix
+
+```{r}
+DMat <- DistMat(An32k5locations)
+SMat <- SavingMat(DMat)
+knitr::kable(SMat[1:5, 1:5])
+```
+
+#### Sorted Edges
+
+```{r}
+DMat <- DistMat(An32k5locations)
+Sort_Edges <- Sorted_Edges(DMat)
+row.names(Sort_Edges) <- NULL
+knitr::kable(head(Sort_Edges))
+```
+
+#### Greedy routes using parallel method
+
+```{r fig.align = 'center', fig.width = 6, fig.height = 5, comment = NA}
+Greedy_routes <- CW_VRP(demand = An32k5demand, locations = An32k5locations, Vehicle_Capacity = 100)
+```
+
+Optimal routes:
+
+```{r comment = NA}
+Greedy_routes
+```
+
+#### Greedy routes using sequential method
+
+Please note that, in sequential approach routes are built sequential. Meaning, new routes cannot be start until the existing route filled. So this approach may take more time comparing to parallel approach and also it may leave some of the customer nodes unserviced. This approach is more efficient for signle vehicle routing method. 
+
+Hence, for more than one vehicle use `Parallel` method and for single vehicle use `Sequential` mehtod. 
+
+Sequential approach for building more than one route:
+
+```{r fig.align = 'center', fig.width = 6, fig.height = 5, comment = NA}
+Greedy_routes_Seq <- CW_VRP(demand = An32k5demand, locations = An32k5locations, Vehicle_Capacity = 100, type = "Sequential")
+```
+
+Optimal routes:
+
+```{r comment = NA}
+Greedy_routes_Seq
+```
+
+Sequential approach for building exactly one route:
+
+```{r fig.align = 'center', fig.width = 6, fig.height = 5, comment = NA}
+Greedy_routes_Seq <- CW_VRP(demand = An32k5demand, locations = An32k5locations, Vehicle_Capacity = 500, type = "Sequential")
+```
+
+Optimal route:
+
+```{r comment = NA}
+Greedy_routes_Seq
+```
+
+
+`Desclaimer: I'm not a coder, one can access the code and improve the efficiency of the code. Please reach me kaveti.naveenkumar@gmail.com for any suggestions`
+
+

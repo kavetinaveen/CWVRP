@@ -1,0 +1,16 @@
+Package: HeuristicsVRP
+Type: Package
+Title: To find greedy routes using heuristic algorithms
+Version: 1.0
+Date: 2017-01-22
+Author: Naveen Kaveti
+Maintainer: Naveen <kaveti.naveenkumar@gmail.com>
+Description: Objective of this package is to provide better (not optimal) routes
+    almost in real-time. Currently added only Clarke-Wright Savings algorithm. I
+    will try to add more in future versions.
+License: GPL-2
+Depends: ggplot2, geosphere, R (>= 3.3.0)
+RoxygenNote: 6.0.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+LazyData: true
