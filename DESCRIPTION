@@ -1,4 +1,4 @@
-Package: HeuristicsVRP
+Package: CWVRP
 Type: Package
 Title: To find greedy routes using heuristic algorithms
 Version: 1.0
