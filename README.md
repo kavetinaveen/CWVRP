@@ -20,7 +20,7 @@ Clarke-Wright Savings is one of the most famous algorithm for VRP problems. The 
 Savings Approach: Let A be your depot location and B, C are customer node locations. Now there are two possible ways to service customers from A.
 
 1. Sending two different vehicle to each customer seperately.
-2. Sending one vehicle to service both of them and retunr back to depot.
+2. Sending one vehicle to service both of them and return back to depot.
 
 Cost for approach 1 is: `C1 := Dist[A, B] + Dist[B, A] + Dist[A, C] + Dist[C, A]`
 
