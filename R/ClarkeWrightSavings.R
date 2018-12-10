@@ -28,7 +28,7 @@
 #' @export
 
 CW_VRP <- function(demand = NULL, locations = NULL, DMat = NULL, Vehicle_Capacity = NULL, method = "euclidean", Constraints = c("Capacity"), type = "Parallel", Plot = TRUE, logfile = TRUE){
-  options(expressions = 10000)
+  options(expressions = 100000)
   strt <- Sys.time()
   flag_idmap <- 0
   
